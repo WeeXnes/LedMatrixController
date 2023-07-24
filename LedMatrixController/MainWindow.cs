@@ -5,6 +5,8 @@ using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -30,7 +32,6 @@ namespace LedMatrixController
         {
             currentColor = selectColorDialog.Color; 
         }
-
         private void SetDarkMode()
         {
             Color darkModeColor = Color.FromArgb(22, 26, 33);
@@ -51,7 +52,7 @@ namespace LedMatrixController
             int indexcounter = 1;
             for (int i = 0; i <= 15; i++)
             {
-                if (i % 2 == 0)
+                if (i % 2 != 0)
                 {
                     for (int j = 0; j <= 15; j++)
                     {
@@ -85,12 +86,12 @@ namespace LedMatrixController
                 }
             }
         }
-        void AddPanel(Panel p)
+        void AddPanel(Panel _panel)
         {
-            p.Click += PnlOnClick;
-            this.Controls.Add(p);
+            _panel.Click += PanelOnClick;
+            this.Controls.Add(_panel);
         }
-        private void PnlOnClick(object sender, EventArgs e)
+        private void PanelOnClick(object sender, EventArgs e)
         {
             Panel selectedPanel = (Panel)sender;
             selectedPanel.BackColor = currentColor;
@@ -99,10 +100,39 @@ namespace LedMatrixController
         {
             return this.Controls.OfType<Panel>().OrderBy(panel => panel.TabIndex);
         }
-
         public IEnumerable<Button> GetButtons()
         {
             return this.Controls.OfType<Button>().OrderBy(but => but.TabIndex);
+        }
+
+        private void sendDatatoESP(string JsonData)
+        {
+            string jsonData = JsonData;
+
+            // Replace "http://your_esp8266_ip_or_hostname/endpoint" with the actual address of your ESP8266
+            string esp8266Endpoint = "http://192.168.178.122/endpoint";
+
+            using (var httpClient = new HttpClient())
+            {
+                try
+                {
+                    var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+                    var response = httpClient.PostAsync(esp8266Endpoint, content);
+
+                    if (response.Result.StatusCode == HttpStatusCode.OK)
+                    {
+                        //MessageBox.Show("JSON data sent successfully.");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to send JSON data. Status code: " + response.Result.StatusCode);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: " + ex.Message);
+                }
+            }
         }
         private void LoadTexture(string path)
         {
@@ -110,7 +140,7 @@ namespace LedMatrixController
             Bitmap img = new Bitmap(path);
             for (int j = 15; j >= 0; j--)
             {
-                if (j % 2 == 0)
+                if (j % 2 != 0)
                 {
                     for (int i = 0; i <= 15; i++)
                     {
@@ -136,13 +166,11 @@ namespace LedMatrixController
                 panel.BackColor = colors[i];
             }
         }
-
         private void button1_Click(object sender, EventArgs e)
         {
             selectColorDialog.ShowDialog();  
             currentColor = selectColorDialog.Color; 
         }
-
         private void button2_Click(object sender, EventArgs e)
         {
             foreach(var pnl in GetPanels())
@@ -150,7 +178,6 @@ namespace LedMatrixController
                 pnl.BackColor = currentColor;
             }
         }
-
         private void button3_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -163,7 +190,6 @@ namespace LedMatrixController
                 }
             }
         }
-
         private void button4_Click(object sender, EventArgs e)
         {
             ColorMatrix matrix = new ColorMatrix();
@@ -175,10 +201,11 @@ namespace LedMatrixController
                 matrix.Colors[i] = color;
             }
 
-            MessageBox.Show(matrix.ToJson());
+            //MessageBox.Show(matrix.ToJson());
             //Clipboard.SetText(matrix.ToJson());
+            sendDatatoESP(matrix.ToJson());
         }
-
+        
         private void button5_Click(object sender, EventArgs e)
         {
             Color[] colors = new Color[256];
@@ -194,7 +221,7 @@ namespace LedMatrixController
                 {
                     for (int j = 15; j >= 0; j--)
                     {
-                        if (j % 2 == 0)
+                        if (j % 2 != 0)
                         {
                             for (int i = 0; i <= 15; i++)
                             {
