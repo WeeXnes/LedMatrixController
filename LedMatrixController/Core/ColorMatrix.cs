@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace RgbMatrix
+namespace LedMatrixController.Core
 {
     public class ColorMatrix
     {
-        public MatrixColor[] Colors { get; set; }
+        public MColor[] Colors { get; set; }
         public ColorMatrix()
         {
-            this.Colors = new MatrixColor[256];
+            this.Colors = new MColor[256];
         }
 
         public string ToJson()

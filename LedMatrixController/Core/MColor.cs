@@ -2,15 +2,15 @@ using System.CodeDom;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace RgbMatrix
+namespace LedMatrixController.Core
 {
-    public class MatrixColor
+    public class MColor
     {
         public int Red { get; set; }
         public int Green { get; set; }
         public int Blue { get; set; }
 
-        public MatrixColor(int r = 0, int g = 0, int b = 0)
+        public MColor(int r = 0, int g = 0, int b = 0)
         {
             this.Red = r;
             this.Green = g;
