@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -176,6 +177,54 @@ namespace LedMatrixController
 
             MessageBox.Show(matrix.ToJson());
             //Clipboard.SetText(matrix.ToJson());
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            Color[] colors = new Color[256];
+            var panels = GetPanels();
+            for (int i = 0; i < panels.Count(); i++)
+            {
+                colors[i] = panels.ElementAt(i).BackColor;
+            }
+            int counter = 0;
+            using (Bitmap newImage = new Bitmap(16, 16))
+            {
+                using (Graphics g = Graphics.FromImage(newImage))
+                {
+                    for (int j = 15; j >= 0; j--)
+                    {
+                        if (j % 2 == 0)
+                        {
+                            for (int i = 0; i <= 15; i++)
+                            {
+                                g.FillRectangle(new SolidBrush(colors[counter]), i, j, 1, 1);
+                                counter++;
+                            }
+                        }
+                        else
+                        {
+                    
+                            for (int i = 15; i >= 0; i--)
+                            {
+                                g.FillRectangle(new SolidBrush(colors[counter]), i, j, 1, 1);
+                                counter++;
+                            }
+                        }
+                    }
+                }
+                //newImage.Save("monke.png", System.Drawing.Imaging.ImageFormat.Png);
+                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+                {
+                    saveFileDialog.Filter = "png files (*.png)|*.png";
+                    saveFileDialog.RestoreDirectory = true;
+                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        newImage.Save(saveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Png);
+                    }
+                }
+            }
+            
         }
     }
 }
